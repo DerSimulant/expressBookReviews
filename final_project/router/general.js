@@ -3,6 +3,7 @@ let books = require("./booksdb.js");
 let isValid = require("./auth_users.js").isValid;
 let users = require("./auth_users.js").users;
 const public_users = express.Router();
+const axios = require('axios');
 
 const doesExist = (username)=>{
     let userswithsamename = users.filter((user)=>{
@@ -40,6 +41,20 @@ public_users.get('/',function (req, res) {
   return res.send(JSON.stringify(books,null,4));
 });
 
+// Get the book list using promises DON´T FORGET npm install axios
+
+function getBooks() {
+    return new Promise((resolve, reject) => {
+      resolve(books);
+    });
+  }
+  public_users.get('/', function(req, res) {
+    getBooks()
+      .then((books) => {
+        return res.send(JSON.stringify(books, null, 4));
+      });
+  });
+
 // Get book details based on ISBN
 public_users.get('/isbn/:isbn',function (req, res) {
     const isbn = req.params.isbn;
@@ -47,8 +62,17 @@ public_users.get('/isbn/:isbn',function (req, res) {
     
  });
   
-
- 
+//Async implementation
+function getBook(isbn) {
+    return new Promise((resolve, reject) => {
+      resolve(books[isbn]);
+    });
+  }
+  public_users.get('/isbn/:isbn', async function(req, res) {
+    const isbn = req.params.isbn;
+    const book = await getBook(isbn);
+    return res.send(JSON.stringify(book));
+  });
 // Get book details based on author
 
 public_users.get('/author/:author', function (req, res) {
