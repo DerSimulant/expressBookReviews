@@ -139,7 +139,32 @@ public_users.get('/title/:title', function (req, res) {
     }
   });
   
+// Async implementation on title 
 
+function getBooksByTitle(title) {
+    return new Promise((resolve, reject) => {
+      const matchingBooks = [];
+      for (const isbn in books) {
+        const book = books[isbn];
+        if (book.title === title) {
+          matchingBooks.push(book);
+        }
+      }
+      resolve(matchingBooks);
+    });
+  }
+  public_users.get('/title/:title', function(req, res) {
+    const title = req.params.title;
+    getBooksByTitle(title)
+      .then((matchingBooks) => {
+        if (!matchingBooks.length) {
+          res.send({error: 'No books found with that title.'});
+        } else {
+          res.send(matchingBooks);
+        }
+      });
+  });
+  
 //  Get book review
 public_users.get('/review/:isbn',function (req, res) {
     const requestIsbn = req.params.isbn;
