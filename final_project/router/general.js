@@ -93,7 +93,31 @@ public_users.get('/author/:author', function (req, res) {
   
    
   });
-   
+
+// Aysnc implementation on author
+function getBooksByAuthor(author) {
+    return new Promise((resolve, reject) => {
+      const matchingBooks = [];
+      for (const isbn in books) {
+        const book = books[isbn];
+        if (book.author === author) {
+          matchingBooks.push(book);
+        }
+      }
+      resolve(matchingBooks);
+    });
+  }
+  public_users.get('/author/:author', async function(req, res) {
+    const author = req.params.author;
+    const matchingBooks = await getBooksByAuthor(author);
+    if (!matchingBooks.length) {
+      res.send({error: 'No books found with that author.'});
+    } else {
+      res.send(matchingBooks);
+    }
+  });
+  
+  
 
 
 // Get all books based on title
